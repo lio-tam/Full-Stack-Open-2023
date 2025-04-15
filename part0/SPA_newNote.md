@@ -36,8 +36,8 @@ sequenceDiagram
     activate Server
     Server->>Server: Processes note data
     Server-->>Browser: HTTP 201 Created
-    Note right of Server: Successful creation of new note
     deactivate Server
+    Note right of Server: Successful creation of new note
 
     Note over Browser: No page reload, Browser updates UI with new note
 ```
