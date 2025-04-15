@@ -3,33 +3,32 @@ sequenceDiagram
     participant Browser
     participant Server
 
-    User ->> Browser: give input and click submission
+    User ->> Browser: Provide input and click submit
     Note over Browser: Form data prepared
 
-    Browser->>Server: POST https://studies.cs.helsinki.fi/exampleapp/new_note
+    Browser ->> Server: POST https://studies.cs.helsinki.fi/exampleapp/new_note
     activate Server
-    Server->>Server: Create new note object
-    Note right of Browser: HTTP POST request to /new_note
-    Server-->>Browser: 302 URL redirect
-    Note right of Browser: The server responds with HTTP 302 redirecting to /notes
+    Note right of Server: Server processes the submitted form data
+    Server ->> Server: Create new note object
+    Server -->> Browser: 302 Redirect to /notes
     deactivate Server
 
-    Browser->>Server: GET https://studies.cs.helsinki.fi/exampleapp/notes
+    Browser ->> Server: GET https://studies.cs.helsinki.fi/exampleapp/notes
     activate Server
-    Server-->>Browser: HTML document
+    Server -->> Browser: HTML document (updated Notes page)
     deactivate Server
-    
-    Browser->>Server: GET https://studies.cs.helsinki.fi/exampleapp/main.css
+
+    Browser ->> Server: GET https://studies.cs.helsinki.fi/exampleapp/main.css
     activate Server
-    Server-->>Browser: the css file
+    Server -->> Browser: CSS file
     deactivate Server
-    
-    Browser->>Server: GET https://studies.cs.helsinki.fi/exampleapp/main.js
+
+    Browser ->> Server: GET https://studies.cs.helsinki.fi/exampleapp/main.js
     activate Server
-    Server-->>Browser: the JavaScript file
+    Server -->> Browser: JavaScript file
     deactivate Server
-    
-    Browser->>Server: GET https://studies.cs.helsinki.fi/exampleapp/data.json
+
+    Browser ->> Server: GET https://studies.cs.helsinki.fi/exampleapp/data.json
     activate Server
-    Server-->>Browser: the raw data
+    Server -->> Browser: JSON notes data
     deactivate Server
