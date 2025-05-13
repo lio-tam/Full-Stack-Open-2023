@@ -1,11 +1,12 @@
 // import { useState } from 'react'
 import {useState, useEffect} from 'react'
-import axios from 'axios'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
+import personService from './services/servePersons'
 
 const App = () => {
+  // States to store data for rendering
   const [persons, setPersons] = useState([
     // { name: 'Arto Hellas', number: '040-123456', id: 1 },
     // { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
@@ -20,16 +21,23 @@ const App = () => {
   const handleNewNumber = (event) => setNewNumber(event.target.value)
   const handleNewFilter = (event) => setNewFilter(event.target.value)
 
+  // define how often it fetches data from the json server
   useEffect(
     ()=>{
       console.log('effect')
-      axios.get('http://localhost:3001/persons').then(response=>{
-        console.log('promised fullfilled')
-        setPersons(response.data)
+
+      personService.getAll().then(initialPersons=>{
+        console.log('promise fullfilled')
+        setPersons(initialPersons)
       })
     }, []
   )
   console.log('render', persons.length, 'notes')
+
+  // const filterPerson = newFilter.length === 0 ? persons : persons.filter(person => person.name.toLowerCase() === newFilter.toLowerCase())
+  const filteredPersons = persons.filter(person =>
+    person.name.toLowerCase().includes(newFilter.toLowerCase())
+  )
 
   const addContact = (event) => {
     event.preventDefault()
@@ -41,15 +49,28 @@ const App = () => {
       name: newName,
       number: newNumber
     }
-    setPersons(persons.concat(personObj))
-    setNewName('')
-    setNewNumber('')
+    // post the new obj and fetch and render the new data 
+    personService.create(personObj).then(initialPersons=>{
+        setPersons(persons.concat(initialPersons))
+        setNewName('')
+        setNewNumber('')
+    })
   }
 
-  // const filterPerson = newFilter.length === 0 ? persons : persons.filter(person => person.name.toLowerCase() === newFilter.toLowerCase())
-  const filteredPersons = persons.filter(person =>
-    person.name.toLowerCase().includes(newFilter.toLowerCase())
-  )
+  const removeContact = (id, name) => {
+    if (window.confirm(`Delete ${name}?`)) {
+      personService
+        .remove(id)
+        .then(() => {
+          setPersons(persons.filter(p => p.id !== id))
+        })
+        .catch(error => {
+          alert(`Information of ${name} has already been removed from server`)
+          setPersons(persons.filter(p => p.id !== id))
+        })
+    }
+  }
+
   return (
     <div>
       <h2>Phonebook</h2>
@@ -59,7 +80,7 @@ const App = () => {
       <h3>add a new</h3>
 
       <PersonForm
-        addContact={addContact}
+        handleAdd={addContact}
         newName={newName}
         handleNewName={handleNewName}
         newNumber={newNumber}
@@ -70,6 +91,7 @@ const App = () => {
 
       <Persons 
         filteredPersons={filteredPersons}
+        handleDelete={removeContact}
       />
 
     </div>
