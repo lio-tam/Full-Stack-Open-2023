@@ -42,21 +42,35 @@ const App = () => {
   const addContact = (event) => {
     event.preventDefault()
     if (persons.some(person => person.name.toLowerCase() === newName.toLowerCase())) {
-      alert(`${newName} is already added to phonebook`)
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        // avoid direct mutation of the object
+        const existingPerson = persons.find(person => person.name.toLowerCase() === newName.toLowerCase())
+        const changedPerson = {... existingPerson, number: newNumber}
+        personService
+          .update(existingPerson.id, changedPerson)
+          .then(returnedPerson=>{
+            // map p to p for person who is not the newly changed person, else map that p to the changed person
+            setPersons(persons.map(p => p.id !== existingPerson.id ? p : returnedPerson))
+            setNewName('')
+            setNewNumber('')
+        })
+      }
       return
+    } else {
+      const personObj = {
+        name: newName,
+        number: newNumber
+      }
+      // post the new obj and fetch and render the new data 
+      personService.create(personObj).then(initialPersons=>{
+          setPersons(persons.concat(initialPersons))
+          setNewName('')
+          setNewNumber('')
+      }) 
     }
-    const personObj = {
-      name: newName,
-      number: newNumber
-    }
-    // post the new obj and fetch and render the new data 
-    personService.create(personObj).then(initialPersons=>{
-        setPersons(persons.concat(initialPersons))
-        setNewName('')
-        setNewNumber('')
-    })
   }
 
+  // 
   const removeContact = (id, name) => {
     if (window.confirm(`Delete ${name}?`)) {
       personService
