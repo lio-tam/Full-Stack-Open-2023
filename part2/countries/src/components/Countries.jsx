@@ -1,33 +1,32 @@
-const Countries = ({filteredCountries, countryDetail, handleShow}) => {
-    if (filteredCountries === '') return null
+const Countries = ({ newFilter, filteredCountries, selectedCountry, handleShow }) => {
+    if (newFilter === '') return null
     if (filteredCountries.length > 10) return (<p>Too many matches, specify another filter</p> )
-    if (countryDetail) {
+    if (selectedCountry) {
         return (
             <div>
-                <h1>{countryDetail.name.official}</h1>
-                <p>Capital: {countryDetail.capital}</p>
-                <p>Area: {countryDetail.area} (km^2)</p>
+                <h1>{selectedCountry.name.official}</h1>
+                <p>Capital: {selectedCountry.capital}</p>
+                <p>Area: {selectedCountry.area} (km^2)</p>
                 <h2>Languages:</h2>
                 <ul>
-                    {Object.values(countryDetail.languages).map(lang => (
+                    {Object.values(selectedCountry.languages).map(lang => (
                     <li key={lang}>{lang}</li>
                     ))}
                 </ul>
                 <img
-                    src={countryDetail.flags.png}
-                    alt={`Flag of ${countryDetail.name.common}`}
+                    src={selectedCountry.flags.png}
+                    alt={`Flag of ${selectedCountry.name.common}`}
                     width={250}
                 />
-                <h2>Weahter in {countryDetail.capital}</h2>
             </div>
         )
     }
     return (
         <ul>
             {filteredCountries.map(c => (
-                <li key={c}>
-                    {c}
-                    <button onClick={() => handleShow(c.toLowerCase())} >
+                <li key={c.cca3}>
+                    {c.name.common}
+                    <button onClick={() => handleShow(c)} >
                         details
                     </button>
                 </li>

@@ -7,7 +7,7 @@ import Weather from './components/Weather'
 const App = () => {
   const [countries, setCountries] = useState([])
   const [newFilter, setNewFilter] = useState('')
-  const [countryDetail, setCountryDetail] = useState(null) // store the concrete details on demand
+  const [selectedCountry, setSelectedCountry] = useState(null)
   const [weather, setWeather] = useState(null)
   const api_key = import.meta.env.VITE_SOME_KEY
 
@@ -16,39 +16,43 @@ const App = () => {
 
   // save the current filtered list of countries
   const lowerFilter = newFilter.toLowerCase()
-  const filteredCountries = newFilter === '' ? [] 
-    : countries.some(c => c.toLowerCase() === lowerFilter)? 
-      countries.filter(c => c.toLowerCase() === lowerFilter)   // exact result
-      : countries.filter(c => c.toLowerCase().includes(lowerFilter))
+  const filteredCountries = newFilter === ''
+    ? []
+    : countries.some(c => c.name.common.toLowerCase() === lowerFilter)
+      ? countries.filter(c => c.name.common.toLowerCase() === lowerFilter)
+      : countries.filter(c =>
+          c.name.common.toLowerCase().includes(lowerFilter)
+        )
+
+  // auto-select or clear when filter text changes
+  useEffect(() => {
+    if (newFilter.trim() === '') {
+      setSelectedCountry(null)
+      setWeather(null)
+      return
+    }
+    if (filteredCountries.length === 1) {
+      setSelectedCountry(filteredCountries[0])
+    } else {
+      setSelectedCountry(null)
+      setWeather(null)
+    }
+  }, [newFilter])
 
   // init countries with names only
   useEffect(() => {
     axios
       .get('https://studies.cs.helsinki.fi/restcountries/api/all')
       .then(response => {
-        setCountries(response.data.map(country => country.name.common))
+        setCountries(response.data)            // keep entire objects
       })
   }, [])
 
-  // fetch the details of a country when there is only country on the list
+  // fetch weather once we have the selected country
   useEffect(() => {
-    if (filteredCountries.length === 1) {
-      // fetch details
-      axios
-        .get(`https://studies.cs.helsinki.fi/restcountries/api/name/${encodeURIComponent(filteredCountries[0])}`)
-        .then(response => setCountryDetail(response.data)) // fetch one obj not the whole array
-        .catch(() => setCountryDetail(null))
-    } else {
-      setCountryDetail(null)
-      setWeather(null)
-    }
-  }, [filteredCountries])
+    if (!selectedCountry || !selectedCountry.latlng) return   // bail early
 
-  // fetch weather once we have the country detail
-  useEffect(() => {
-    if (!countryDetail || !countryDetail.latlng) return   // bail early
-
-    const [lat, lon] = countryDetail.latlng
+    const [lat, lon] = selectedCountry.latlng
     const key = `${lat},${lon}`               // unique per capital
 
     // optional: skip if we already fetched the same coords
@@ -60,16 +64,23 @@ const App = () => {
       })
       .then(res => setWeather({ ...res.data, _key: key }))
       .catch(() => setWeather(null))
-  }, [countryDetail, api_key])
+  }, [selectedCountry, api_key])
 
   // fetch the details of a country upon clicking 'details'
-  const handleShow = (name) => setNewFilter(name)
+  const handleShow = (countryObj) => {
+    setSelectedCountry(countryObj)
+  }
 
   return (
     <div>
       <Filter value={newFilter} onChange={handleNewFilter} />
-      <Countries filteredCountries={filteredCountries} countryDetail={countryDetail} handleShow={handleShow} />
-      <Weather weahterObj={weather} />
+      <Countries
+        newFilter={newFilter}
+        filteredCountries={filteredCountries}
+        selectedCountry={selectedCountry}
+        handleShow={handleShow}
+      />
+      {selectedCountry && <Weather weather={weather} />}
     </div>
   )
 }
