@@ -1,5 +1,5 @@
-const Countries = ({ newFilter, filteredCountries, selectedCountry, handleShow }) => {
-    if (newFilter === '') return null
+const Countries = ({ filteredCountries, selectedCountry, handleShow }) => {
+    if (filteredCountries === null) return null
     if (filteredCountries.length > 10) return (<p>Too many matches, specify another filter</p> )
     if (selectedCountry) {
         return (
