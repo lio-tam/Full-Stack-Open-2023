@@ -1,5 +1,9 @@
+// This module provides functions to interact with a REST API for managing persons.
+// It uses axios for HTTP requests and exports functions to get all persons, create a new person,
+// remove a person by ID, and update a person's information.
+
 import axios from 'axios'
-const baseUrl = 'http://localhost:3001/persons'
+const baseUrl = 'http://localhost:3001/api/persons'
 
 const getAll = () => {
   const request = axios.get(baseUrl)  // HTTP GET
@@ -26,4 +30,4 @@ const update = (id, newObject) => {
 //   getAll: getAll, 
 //   create: create
 // }
-export default {getAll, create, remove, update} // since the names of keys and variables are the same 
+export default {getAll, create, remove, update} // since the names of keys and variables are the same
