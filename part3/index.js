@@ -37,6 +37,8 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 
 app.use(cors()) // middleware to enable CORS for all routes
 
+app.use(express.static('build')) // middleware to serve static files from the 'backend' directory
+
 // route: an event handler that is used to handle HTTP GET requests made to the application's / root
 app.get('/', (request, response) => {
   response.send('<h1>Welcome to the Phonebook!</h1>')
