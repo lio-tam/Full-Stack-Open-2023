@@ -1,7 +1,6 @@
 const express = require('express') // import the express module to create a web server
 const app = express()              // create an instance of an Express application
 const morgan = require('morgan')   // import the morgan module for logging HTTP requests
-const cors = require('cors')       // import the cors module to enable Cross-Origin Resource Sharing
 
 // javascript object that represents the json persons in the app
 let persons = [
@@ -34,8 +33,6 @@ app.use(express.json()) // middleware to parse JSON bodies
 morgan.token('body', (request, response) => JSON.stringify(request.body))
 // 2. Use a custom format string that includes the new token at the end of the tiny format
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
-
-app.use(cors()) // middleware to enable CORS for all routes
 
 app.use(express.static('build')) // middleware to serve static files from the 'backend' directory
 
