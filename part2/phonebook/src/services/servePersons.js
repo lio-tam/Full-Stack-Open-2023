@@ -3,7 +3,7 @@
 // remove a person by ID, and update a person's information.
 
 import axios from 'axios'
-const baseUrl = 'http://localhost:3001/api/persons'
+const baseUrl = 'api/persons' // relative path as both front and back share the same host
 
 const getAll = () => {
   const request = axios.get(baseUrl)  // HTTP GET
